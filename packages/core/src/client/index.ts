@@ -38,7 +38,7 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
       return fn();
     }
 
-    const ttl = globalConfig.ignoreTTL ? undefined : params.ttl;
+    const ttl = globalConfig.ignoreTTL ? undefined : (params as any).ttl;
 
     // keep stack expression in this fn to have correct stack offset
     const stack = new Error().stack?.split('\n')[2]?.trim().replace(process.cwd(), '') || '';
@@ -55,7 +55,7 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
       logger.warn(body.message);
       debugKey(key, `${body.result}, computing...`);
     } else {
-      debugKey(key, `${body.result} (${body.message}), computing...`);
+      debugKey(key, `${body.result} (${(body as any).message}), computing...`);
     }
 
     if (body.result === 'cache-hit') {
