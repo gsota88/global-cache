@@ -12,4 +12,6 @@ export type AssertFn<Res> = (result: Res) => boolean | Promise<boolean>;
 export type KeyParams = { ttl?: TTL };
 export type GetArgs<K extends StringKeys<S>, S extends DefaultKeysSchema> =
   | [K, ComputeFn<S[K]>, AssertFn<S[K]>]
-  | [K, KeyParams, ComputeFn<S[K]>, AssertFn<S[K]>];
+  | [K, ComputeFn<S[K]>]
+  | [K, KeyParams, ComputeFn<S[K]>, AssertFn<S[K]>]
+  | [K, KeyParams, ComputeFn<S[K]>];

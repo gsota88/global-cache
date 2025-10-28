@@ -3,7 +3,7 @@ import { debug, debugKey } from '../shared/debug';
 import { logger } from '../shared/logger';
 import { calcSignature } from '../shared/sig';
 import { StorageApi } from './api';
-import { DefaultKeysSchema, GetArgs, StringKeys } from './types';
+import { ComputeFn, DefaultKeysSchema, GetArgs, StringKeys } from './types';
 import { previewValue } from './utils/preview-value';
 
 export { DefaultKeysSchema };
@@ -63,6 +63,10 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
       debugKey(key, `${body.result}: ${previewValue(value)}`);
 
       const hit = value as S[K];
+      if (!assertFn) {
+        return hit;
+      }
+
       if (await assertFn(hit)) {
         return hit;
       }
@@ -135,7 +139,23 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
 }
 
 function resolveGetArgs<K extends StringKeys<S>, S extends DefaultKeysSchema>(args: GetArgs<K, S>) {
-  return args.length === 3
-    ? { key: args[0], params: {}, fn: args[1], assertFn: args[2] }
-    : { key: args[0], params: { ...args[1] }, fn: args[2], assertFn: args[3] };
+  if (args.length === 2) {
+    const [key, fn] = args;
+    return { key, params: {}, fn, assertFn: undefined };
+  }
+
+  if (args.length === 4) {
+    const [key, params, fn, assertFn] = args;
+    return { key, params: { ...params }, fn, assertFn };
+  }
+
+  // args.length === 3
+  const [key, secondArg, thirdArg] = args;
+
+  // Check if it's [key, params, fn] vs [key, fn, assertFn]
+  if (typeof secondArg === 'object' && secondArg !== null) {
+    return { key, params: { ...secondArg }, fn: thirdArg as ComputeFn<S[K]>, assertFn: undefined };
+  } else {
+    return { key, params: {}, fn: secondArg as ComputeFn<S[K]>, assertFn: thirdArg };
+  }
 }
