@@ -33,6 +33,14 @@ export class StorageApi {
     return (await res.json()) as SetValueResponse;
   }
 
+  async setComputing({ key }: { key: string; }) {
+    const res = await this.http.post('setComputing', {
+      key
+    });
+    await throwIfHttpError(res, `Failed to save key "${key}":`);
+    return (await res.json()) as GetValueResponse;
+  }
+
   async getStale({ key }: GetStaleParams) {
     const res = await this.http.get('get-stale', { key });
     await throwIfHttpError(res, `Failed to get stale key "${key}":`);

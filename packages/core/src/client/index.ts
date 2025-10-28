@@ -1,4 +1,4 @@
-import { globalConfig, GlobalCacheConfig } from '../config';
+import { GlobalCacheConfig, globalConfig } from '../config';
 import { debug, debugKey } from '../shared/debug';
 import { logger } from '../shared/logger';
 import { calcSignature } from '../shared/sig';
@@ -31,7 +31,7 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
    */
   // eslint-disable-next-line visual/complexity, max-statements
   async get<K extends StringKeys<S>>(...args: GetArgs<K, S>): Promise<S[K]> {
-    const { key, params, fn } = resolveGetArgs(args);
+    const { key, params, fn, assertFn } = resolveGetArgs(args);
 
     if (globalConfig.disabled) {
       debugKey(key, `Global cache disabled. Computing...`);
@@ -47,12 +47,6 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
     debugKey(key, `Fetching value...`);
     const body = await this.api.get({ key, sig, ttl });
 
-    if (body.result === 'cache-hit') {
-      const { value } = body.valueInfo;
-      debugKey(key, `${body.result}: ${previewValue(value)}`);
-      return value as S[K];
-    }
-
     if (body.result === 'error') {
       throw new Error(body.message);
     }
@@ -62,6 +56,19 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
       debugKey(key, `${body.result}, computing...`);
     } else {
       debugKey(key, `${body.result} (${body.message}), computing...`);
+    }
+
+    if (body.result === 'cache-hit') {
+      const { value } = body.valueInfo;
+      debugKey(key, `${body.result}: ${previewValue(value)}`);
+
+      const hit = value as S[K];
+      if (await assertFn(hit)) {
+        return hit;
+      }
+      else {
+        await this.api.setComputing({ key });
+      }
     }
 
     const { value, error } = await this.computeValue(fn);
@@ -128,7 +135,7 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
 }
 
 function resolveGetArgs<K extends StringKeys<S>, S extends DefaultKeysSchema>(args: GetArgs<K, S>) {
-  return args.length === 2
-    ? { key: args[0], params: {}, fn: args[1] }
-    : { key: args[0], params: { ...args[1] }, fn: args[2] };
+  return args.length === 3
+    ? { key: args[0], params: {}, fn: args[1], assertFn: args[2] }
+    : { key: args[0], params: { ...args[1] }, fn: args[2], assertFn: args[3] };
 }

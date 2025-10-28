@@ -17,7 +17,7 @@ export function updateValueInfo(valueInfo: TestRunValueInfo, props: Partial<Test
   return Object.assign(valueInfo, props);
 }
 
-export function setComputed(valueInfo: TestRunValueInfo, value: unknown) {
+export function setComputed(valueInfo: TestRunValueInfo, value: unknown, computing: bool) {
   updateValueInfo(valueInfo, {
     state: 'computed',
     value,

@@ -8,7 +8,8 @@ export type DefaultKeysSchema = Record<string, any>; // eslint-disable-line @typ
 export type StringKeys<S extends DefaultKeysSchema> = keyof S & string; // strip number | symbol;
 
 export type ComputeFn<Res> = () => Res | Promise<Res>;
+export type AssertFn<Res> = (result: Res) => boolean | Promise<boolean>;
 export type KeyParams = { ttl?: TTL };
 export type GetArgs<K extends StringKeys<S>, S extends DefaultKeysSchema> =
-  | [K, ComputeFn<S[K]>]
-  | [K, KeyParams, ComputeFn<S[K]>];
+  | [K, ComputeFn<S[K]>, AssertFn<S[K]>]
+  | [K, KeyParams, ComputeFn<S[K]>, AssertFn<S[K]>];
