@@ -45,7 +45,7 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
     const sig = calcSignature({ fn, ttl, stack });
 
     debugKey(key, `Fetching value...`);
-    const body = await this.api.get({ key, sig, ttl });
+    let body = await this.api.get({ key, sig, ttl });
 
     if (body.result === 'error') {
       throw new Error(body.message);
@@ -71,7 +71,17 @@ export class GlobalCacheClient<S extends DefaultKeysSchema = DefaultKeysSchema> 
         return hit;
       }
       else {
-        await this.api.setComputing({ key });
+        const res = await this.api.setComputing({ key });
+
+        if(res.alreadyComputing) {
+          const body = await this.api.get({ key, sig, ttl });
+          
+          if(body.result !== "cache-hit") {
+            throw new Error(`Value recomputation failed: ${body.message}`)
+          }
+
+          return body.valueInfo.value as S[K];
+        }
       }
     }
 

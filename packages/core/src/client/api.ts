@@ -7,6 +7,7 @@ import { HttpJson } from './utils/http-json';
 import { prepareQueryParams } from './utils/http-query';
 import { throwIfHttpError } from './utils/http-error';
 import { getStaleValue } from '../shared/value-info';
+import { SetComputingResponse } from '../server/routes/setComputing';
 
 export class StorageApi {
   private http: HttpJson;
@@ -38,7 +39,7 @@ export class StorageApi {
       key
     });
     await throwIfHttpError(res, `Failed to save key "${key}":`);
-    return (await res.json()) as GetValueResponse;
+    return (await res.json()) as SetComputingResponse;
   }
 
   async getStale({ key }: GetStaleParams) {

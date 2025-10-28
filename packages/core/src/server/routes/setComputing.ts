@@ -12,7 +12,10 @@ export type SetValueParams = {
   error?: string; // An error occured during value computing.
 };
 
-export type SetValueResponse = TestRunValueInfo;
+export type SetComputingResponse =  {
+  valueInfo: TestRunValueInfo,
+  alreadyComputing: boolean 
+}
 
 router.post('/run/:runId/setComputing', async (req, res) => {
   const { runId } = req.params;
@@ -22,11 +25,16 @@ router.post('/run/:runId/setComputing', async (req, res) => {
   const { testRunStorage } = getStorage(config, runId);
   let valueInfo = (await testRunStorage.load(key))!;
 
-  Object.assign(valueInfo, {
-    state: "computing"
+  let alreadyComputing = valueInfo.state === "computing";
+  if (!alreadyComputing) {
+    Object.assign(valueInfo, {
+      state: "computing"
+    });
+    await testRunStorage.save(valueInfo);
+  }
+
+  res.json({
+    valueInfo,
+    alreadyComputing
   });
-
-  await testRunStorage.save(valueInfo);
-
-  res.json(valueInfo);
 });

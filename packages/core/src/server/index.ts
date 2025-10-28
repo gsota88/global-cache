@@ -14,6 +14,7 @@ import { router as routeSet } from './routes/set';
 import { router as routeGetStale } from './routes/get-stale';
 import { router as routeGetStaleList } from './routes/get-stale-list';
 import { router as routeClearSession } from './routes/clear';
+import { router as routeSetComputing } from './routes/setComputing';
 import { errorHandler } from './error';
 import { getConfig, GlobalCacheServerConfig, setConfig } from './config';
 import { getStorage } from './storage';
@@ -30,6 +31,7 @@ export class GlobalCacheServer {
     this.app.use('/', routeGetStale);
     this.app.use('/', routeGetStaleList);
     this.app.use('/', routeClearSession);
+    this.app.use('/', routeSetComputing)
     // todo:
     // this.app.get('/', (req, res) => {
     //   res.send('Global Storage Server is running.');
