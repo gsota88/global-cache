@@ -1,5 +1,5 @@
 {
-  "name": "@global-cache/playwright",
+  "name": "@woom-cache/playwright",
   "description": "Key-value cache for sharing data between Playwright workers.",
   "version": "0.3.2",
   "type": "commonjs",
@@ -19,7 +19,7 @@
     "test": "npx playwright test -c ./test/playwright.config.ts"
   },
   "dependencies": {
-    "@global-cache/core": "workspace:*"
+    "@woom-cache/core": "workspace:*"
   },
   "keywords": [
     "playwright",

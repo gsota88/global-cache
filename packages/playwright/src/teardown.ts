@@ -1,5 +1,5 @@
-import { globalConfig } from '@global-cache/core';
-import { globalCacheServer } from '@global-cache/core/server';
+import { globalConfig } from '@woom-cache/core';
+import { globalCacheServer } from '@woom-cache/core/server';
 
 export default async function globalTeardown() {
   await globalCacheServer.stop();

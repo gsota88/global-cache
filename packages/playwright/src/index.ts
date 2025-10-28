@@ -1,4 +1,4 @@
-import { DefaultKeysSchema, GlobalCacheClient, globalConfig } from '@global-cache/core';
+import { DefaultKeysSchema, GlobalCacheClient, globalConfig } from '@woom-cache/core';
 import { addGlobalHook, addReporter, PlaywrightLikeConfig } from './pw-config';
 
 export class GlobalCache<
